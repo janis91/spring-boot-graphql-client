@@ -1,0 +1,12 @@
+# Spring
+context:
+    initializer:
+        classes: de.novatec.graphqlclient.BeansInitializer
+
+# Application
+graphql-client:
+    server-url: https://api.github.com/graphql
+    github-auth-token: 22a416af139d82986978933f1c61da4db80bfd5c
+logging:
+    level:
+        de.novatec: DEBUG
