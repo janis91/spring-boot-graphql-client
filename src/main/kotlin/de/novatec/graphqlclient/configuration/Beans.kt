@@ -1,14 +1,13 @@
 package de.novatec.graphqlclient.configuration
 
 import com.apollographql.apollo.ApolloClient
-import de.novatec.graphqlclient.api.GithubHandler
-import de.novatec.graphqlclient.api.GithubRoutes
-import de.novatec.graphqlclient.configuration.ApplicationProperties
-import de.novatec.graphqlclient.business.graphql.repository.GraphQlClient
-import de.novatec.graphqlclient.business.graphql.repository.GraphQlClientImpl
-import de.novatec.graphqlclient.business.graphql.configuration.ApolloClientConfiguration
-import de.novatec.graphqlclient.business.graphql.configuration.OkHttpClientConfiguration
-import de.novatec.graphqlclient.business.graphql.configuration.adapter.URIAdapter
+import de.novatec.graphqlclient.api.vehicles.VehiclesRoutes
+import de.novatec.graphqlclient.business.vehicles.VehiclesHandler
+import de.novatec.graphqlclient.business.vehicles.domain.VehiclesService
+import de.novatec.graphqlclient.graphql.configuration.ApolloClientConfiguration
+import de.novatec.graphqlclient.graphql.configuration.OkHttpClientConfiguration
+import de.novatec.graphqlclient.graphql.configuration.adapter.BigDecimalAdapter
+import de.novatec.graphqlclient.graphql.repository.GraphQlClient
 import okhttp3.OkHttpClient
 import org.springframework.context.support.beans
 
@@ -21,27 +20,30 @@ fun beans() = beans {
      * GraphQL and Config
      */
     bean {
-        OkHttpClientConfiguration(ref<ApplicationProperties>())
+        OkHttpClientConfiguration()
             .okHttpClient()
     }
-    bean<URIAdapter>()
+    bean<BigDecimalAdapter>()
     bean {
         ApolloClientConfiguration(
             ref<ApplicationProperties>(),
             ref<OkHttpClient>(),
-            ref<URIAdapter>()
+            ref<BigDecimalAdapter>()
         ).apolloClient()
     }
-    bean<GraphQlClient> {
-        GraphQlClientImpl(ref<ApolloClient>())
+    bean {
+        GraphQlClient(ref<ApolloClient>())
     }
     /**
-     * Github and Config
+     * Vehicles and Config
      */
     bean {
-        GithubRoutes(ref<GithubHandler>()).routes()
+        VehiclesRoutes(ref<VehiclesHandler>()).routes()
     }
     bean {
-        GithubHandler(ref<GraphQlClient>())
+        VehiclesHandler(ref<VehiclesService>())
+    }
+    bean {
+        VehiclesService(ref<GraphQlClient>(), ref<ApplicationProperties>())
     }
 }

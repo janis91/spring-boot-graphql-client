@@ -16,9 +16,42 @@ sourceSets {
     main {
         allSource.srcDirs.add(file("build/generated/source/apollo/classes/main"))
     }
+    val integration by creating {
+        compileClasspath += main.get().output + test.get().output
+        runtimeClasspath += main.get().output + test.get().output
+    }
+     val acceptance by creating {
+        compileClasspath += main.get().output + test.get().output
+        runtimeClasspath += main.get().output + test.get().output
+    }
 }
 
 val developmentOnly by configurations.creating
+val integrationImplementation by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+val integrationRuntimeOnly by configurations.getting {
+    extendsFrom(configurations["testRuntimeOnly"])
+}
+val integrationAnnotationProcessor by configurations.getting {
+    extendsFrom(configurations["testAnnotationProcessor"])
+}
+val integrationCompileOnly by configurations.getting {
+    extendsFrom(configurations["testCompileOnly"])
+}
+val acceptanceImplementation by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+val acceptanceRuntimeOnly by configurations.getting {
+    extendsFrom(configurations["testRuntimeOnly"])
+}
+val acceptanceAnnotationProcessor by configurations.getting {
+    extendsFrom(configurations["testAnnotationProcessor"])
+}
+val acceptanceCompileOnly by configurations.getting {
+    extendsFrom(configurations["testCompileOnly"])
+}
+
 configurations {
     runtimeClasspath {
         extendsFrom(developmentOnly)
@@ -53,11 +86,14 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+        exclude(module = "mockito-core")
     }
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
+    testImplementation("com.ninja-squad:springmockk:${de.novatec.graphqlclient.build.BuildConfig.springMockkVersion}")
 
     testCompileOnly("org.jetbrains:annotations:13.0")
+
+    integrationImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
 }
 
 dependencyManagement {
@@ -80,5 +116,19 @@ tasks.withType<KotlinCompile> {
 apollo {
     outputPackageName.set("de.novatec.graphqlclient.queries")
     generateKotlinModels.set(true)
-    customTypeMapping.put("URI", "java.net.URI")
+    customTypeMapping.put("BigDecimal", "java.math.BigDecimal")
+}
+
+tasks.register<Test>("integrationTest") {
+    description = "Runs the integration tests."
+    group = "verification"
+    testClassesDirs = sourceSets.getByName("integration").output.classesDirs
+    classpath = sourceSets.getByName("integration").runtimeClasspath
+}
+
+tasks.register<Test>("acceptanceTest") {
+    description = "Runs the acceptance tests."
+    group = "verification"
+    testClassesDirs = sourceSets.getByName("acceptance").output.classesDirs
+    classpath = sourceSets.getByName("acceptance").runtimeClasspath
 }

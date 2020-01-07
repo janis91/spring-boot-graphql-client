@@ -1,0 +1,13 @@
+query Vehicles {
+  nodes(filter: {schema: {is: vehicle}}) {
+    elements {
+      ... on vehicle {
+        fields {
+          name
+          slug
+          price
+        }
+      }
+    }
+  }
+}
