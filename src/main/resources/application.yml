@@ -5,8 +5,8 @@ context:
 
 # Application
 graphql-client:
-    server-url: https://api.github.com/graphql
-    github-auth-token: 22a416af139d82986978933f1c61da4db80bfd5c
+    server-url: https://demo.getmesh.io/api/v2/demo/graphql
+    profit-margin: 10
 logging:
     level:
         de.novatec: DEBUG

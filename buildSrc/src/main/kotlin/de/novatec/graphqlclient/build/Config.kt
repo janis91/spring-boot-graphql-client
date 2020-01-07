@@ -9,4 +9,6 @@ object BuildConfig {
     val kotlinVersion = "1.3.61"
 
     val apolloVersion = "1.2.1"
+
+    val springMockkVersion = "2.0.0"
 }
