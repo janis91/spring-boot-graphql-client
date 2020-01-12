@@ -26,5 +26,5 @@ jobs:
     - name: Integration Test
       run: ./gradlew integrationTest
     - name: Acceptance Test
-      if: github.event == 'push'
+      if: github.event_name == 'push'
       run: ./gradlew acceptanceTest
