@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import javax.validation.ValidationException
 
 internal class VehiclesServiceTests {
 
@@ -100,7 +101,7 @@ internal class VehiclesServiceTests {
     }
 
     @Test
-    fun `GIVEN graphql client returns null for elements, WHEN retrieveAndTransformVehicles is called, THEN returns an empty list`() {
+    fun `GIVEN graphql client returns null for elements, WHEN retrieveAndTransformVehicles is called, THEN throws ValidationException`() {
         val data = VehiclesQuery.Data(
             VehiclesQuery.Node(
                 "nodes",
@@ -109,34 +110,37 @@ internal class VehiclesServiceTests {
         )
         coEvery { client.query(any<VehiclesQuery>()) } returns data
 
-        val result = runBlocking { service.retrieveAndTransformVehicles() }
+        assertThatExceptionOfType(ValidationException::class.java)
+            .isThrownBy { runBlocking { service.retrieveAndTransformVehicles() } }
+            .withMessage("The retrieved data is null for root, 'nodes' or 'elements' attribute, which is not allowed.")
 
-        assertThat(result).isEmpty()
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
     }
 
     @Test
-    fun `GIVEN graphql client returns null for nodes, WHEN retrieveAndTransformVehicles is called, THEN returns an empty list`() {
+    fun `GIVEN graphql client returns null for nodes, WHEN retrieveAndTransformVehicles is called, THEN throws ValidationException`() {
         val data = VehiclesQuery.Data(
             null
         )
         coEvery { client.query(any<VehiclesQuery>()) } returns data
 
-        val result = runBlocking { service.retrieveAndTransformVehicles() }
+        assertThatExceptionOfType(ValidationException::class.java)
+            .isThrownBy { runBlocking { service.retrieveAndTransformVehicles() } }
+            .withMessage("The retrieved data is null for root, 'nodes' or 'elements' attribute, which is not allowed.")
 
-        assertThat(result).isEmpty()
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
     }
 
     @Test
-    fun `GIVEN graphql client returns null, WHEN retrieveAndTransformVehicles is called, THEN returns an empty list`() {
+    fun `GIVEN graphql client returns null, WHEN retrieveAndTransformVehicles is called, THEN throws ValidationException`() {
         coEvery { client.query(any<VehiclesQuery>()) } returns null
 
-        val result = runBlocking { service.retrieveAndTransformVehicles() }
+        assertThatExceptionOfType(ValidationException::class.java)
+            .isThrownBy { runBlocking { service.retrieveAndTransformVehicles() } }
+            .withMessage("The retrieved data is null for root, 'nodes' or 'elements' attribute, which is not allowed.")
 
-        assertThat(result).isEmpty()
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
     }
