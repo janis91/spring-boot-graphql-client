@@ -29,14 +29,14 @@ internal class VehiclesServiceTests {
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("fields", "Foo", "foo", BigDecimal.valueOf(123.12))
+                            VehiclesQuery.Field("fields", "Foo", BigDecimal.valueOf(123.12))
                         )
                     ),
                     VehiclesQuery.Element(
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("fields", "Bar", "bar", BigDecimal.ZERO)
+                            VehiclesQuery.Field("fields", "Bar", BigDecimal.ZERO)
                         )
                     )
                 )
@@ -48,8 +48,8 @@ internal class VehiclesServiceTests {
         val result = runBlocking { service.retrieveAndTransformVehicles() }
 
         assertThat(result).containsExactlyInAnyOrder(
-            Vehicle("Foo", "foo", BigDecimal.valueOf(135.44)),
-            Vehicle("Bar", "bar", BigDecimal.ZERO.setScale(2))
+            Vehicle("Foo", BigDecimal.valueOf(135.44)),
+            Vehicle("Bar", BigDecimal.ZERO.setScale(2))
         )
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
@@ -65,7 +65,7 @@ internal class VehiclesServiceTests {
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("fields", "Foo", "foo", BigDecimal.valueOf(123.12))
+                            VehiclesQuery.Field("fields", "Foo", BigDecimal.valueOf(123.12))
                         )
                     )
                 )
@@ -77,7 +77,7 @@ internal class VehiclesServiceTests {
         val result = runBlocking { service.retrieveAndTransformVehicles() }
 
         assertThat(result).containsExactlyInAnyOrder(
-            Vehicle("Foo", "foo", BigDecimal.valueOf(135.44))
+            Vehicle("Foo", BigDecimal.valueOf(135.44))
         )
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
@@ -243,7 +243,7 @@ internal class VehiclesServiceTests {
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("field", null, null, null)
+                            VehiclesQuery.Field("field", null, null)
                         )
                     )
                 )
@@ -254,7 +254,7 @@ internal class VehiclesServiceTests {
 
         val result = runBlocking { service.retrieveAndTransformVehicles() }
 
-        assertThat(result).containsOnly(Vehicle("", "", BigDecimal.ZERO.setScale(2)))
+        assertThat(result).containsOnly(Vehicle("", BigDecimal.ZERO.setScale(2)))
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
     }

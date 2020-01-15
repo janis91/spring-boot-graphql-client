@@ -29,8 +29,8 @@ internal class VehiclesServiceIntTests {
         val result = runBlocking { vehiclesService.retrieveAndTransformVehicles() }
 
         assertThat(result).containsExactlyInAnyOrder(
-            Vehicle("Gulfstream G550", "gulfstream-g550", BigDecimal.valueOf(46200000).setScale(2)),
-            Vehicle("Maize Blue Solar Car", "maize-blue-solar-car", BigDecimal.valueOf(203500.14))
+            Vehicle("Gulfstream G550",  BigDecimal.valueOf(46200000).setScale(2)),
+            Vehicle("Maize Blue Solar Car",  BigDecimal.valueOf(203500.14))
         )
     }
 }

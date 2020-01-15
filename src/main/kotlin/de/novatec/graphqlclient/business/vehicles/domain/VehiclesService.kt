@@ -22,7 +22,6 @@ class VehiclesService(private val client: GraphQlClient, private val config: App
             (element.inlineFragment as? VehiclesQuery.AsVehicle)!!.fields?.let {
                 Vehicle(
                     it.name.orEmpty(),
-                    it.slug.orEmpty(),
                     (it.price ?: BigDecimal.ZERO)
                         .multiply(BigDecimal.ONE.plus(config.profitMargin.divide(BigDecimal.valueOf(100))))
                         .setScale(2, RoundingMode.CEILING)

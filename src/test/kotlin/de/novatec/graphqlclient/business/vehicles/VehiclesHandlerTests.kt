@@ -24,8 +24,8 @@ internal class VehiclesHandlerTests {
     @Test
     fun `GIVEN a request AND the service returns list of two vehicles, WHEN readAll is called, THEN returns that list as json`() {
         coEvery { service.retrieveAndTransformVehicles() } returns listOf(
-            Vehicle("Foo", "foo", BigDecimal.ONE),
-            Vehicle("Bar", "bar", BigDecimal.ZERO)
+            Vehicle("Foo", BigDecimal.ONE),
+            Vehicle("Bar", BigDecimal.ZERO)
         )
 
         testClient.get().uri("/vehicles")
@@ -36,11 +36,9 @@ internal class VehiclesHandlerTests {
                 """
                 [{ 
                     "name": "Foo",
-                    "slug": "foo",
                     "price": 1
                 },{ 
                     "name": "Bar",
-                    "slug": "bar",
                     "price": 0
                 }]
                 """
@@ -62,7 +60,7 @@ internal class VehiclesHandlerTests {
 
     @Test
     fun `GIVEN a request AND the client returns valid list with single vehicle, WHEN readAll is called, THEN returns the corresponding list with one domain object "vehicle"`() {
-        coEvery { service.retrieveAndTransformVehicles() } returns listOf(Vehicle("Foo", "foo", BigDecimal.ONE))
+        coEvery { service.retrieveAndTransformVehicles() } returns listOf(Vehicle("Foo", BigDecimal.ONE))
 
         testClient.get().uri("/vehicles")
             .accept(MediaType.APPLICATION_JSON)
@@ -72,7 +70,6 @@ internal class VehiclesHandlerTests {
                 """
                 [{ 
                     "name": "Foo",
-                    "slug": "foo",
                     "price": 1
                 }]
                 """
