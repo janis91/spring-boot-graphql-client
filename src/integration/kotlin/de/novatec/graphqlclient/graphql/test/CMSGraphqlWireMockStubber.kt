@@ -13,7 +13,7 @@ class CMSGraphqlWireMockStubber(private val serverUrl: String) {
                 .withRequestBody(equalToJson("""{
                         "operationName": "Vehicles",
                         "variables": {},
-                        "query": "query Vehicles { nodes(filter: {schema: {is: vehicle}}) { __typename elements { __typename ... on vehicle { fields { __typename name slug price } } } } }"
+                        "query": "query Vehicles { nodes(filter: {schema: {is: vehicle}}) { __typename elements { __typename ... on vehicle { fields { __typename name price } } } } }"
                     }"""))
                 .willReturn(okJson("""
                     {
@@ -26,7 +26,6 @@ class CMSGraphqlWireMockStubber(private val serverUrl: String) {
                               "fields": {
                                 "__typename": "vehicleFields",
                                 "name": "Gulfstream G550",
-                                "slug": "gulfstream-g550",
                                 "price": 42000000
                               }
                             },
@@ -35,7 +34,6 @@ class CMSGraphqlWireMockStubber(private val serverUrl: String) {
                               "fields": {
                                 "__typename": "vehicleFields",
                                 "name": "Maize Blue Solar Car",
-                                "slug": "maize-blue-solar-car",
                                 "price": 185000.12
                               }
                             }

@@ -4,7 +4,6 @@ query Vehicles {
       ... on vehicle {
         fields {
           name
-          slug
           price
         }
       }
