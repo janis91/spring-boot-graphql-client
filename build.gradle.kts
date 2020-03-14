@@ -4,8 +4,8 @@ plugins {
     id("org.springframework.boot") version de.novatec.graphqlclient.build.BuildConfig.springBootVersion
     id("io.spring.dependency-management") version de.novatec.graphqlclient.build.BuildConfig.springDependencyManagement
     kotlin("jvm") version de.novatec.graphqlclient.build.BuildConfig.kotlinVersion
-    kotlin("plugin.spring") version "1.3.50"
-    id("com.apollographql.android") version de.novatec.graphqlclient.build.BuildConfig.apolloVersion
+    kotlin("plugin.spring") version "1.3.61"
+    id("com.apollographql.apollo") version de.novatec.graphqlclient.build.BuildConfig.apolloVersion
 }
 
 group = "de.novatec"
@@ -13,9 +13,6 @@ version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 sourceSets {
-    main {
-        allSource.srcDirs.add(file("build/generated/source/apollo/classes/main"))
-    }
     val integration by creating {
         compileClasspath += main.get().output + test.get().output
         runtimeClasspath += main.get().output + test.get().output
@@ -76,7 +73,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.apollographql.apollo:apollo-runtime:${de.novatec.graphqlclient.build.BuildConfig.apolloVersion}")
     implementation("com.apollographql.apollo:apollo-coroutines-support:${de.novatec.graphqlclient.build.BuildConfig.apolloVersion}")
-    implementation("io.github.microutils:kotlin-logging:1.7.7")
+    implementation("io.github.microutils:kotlin-logging:1.7.8")
+    implementation("com.squareup.okio:okio:1.16.0") // TODO: check why okio is pulled with wrong version
 
     compileOnly("org.jetbrains:annotations:13.0")
 
@@ -114,9 +112,12 @@ tasks.withType<KotlinCompile> {
 }
 
 apollo {
-    outputPackageName.set("de.novatec.graphqlclient.queries")
     generateKotlinModels.set(true)
-    customTypeMapping.put("BigDecimal", "java.math.BigDecimal")
+    service("mesh") {
+        sourceFolder.set("de/novatec/mesh")
+        rootPackageName.set("de.novatec.graphqlclient.mesh")
+        customTypeMapping.set(mapOf("BigDecimal" to "java.math.BigDecimal"))
+    }
 }
 
 tasks.register<Test>("integrationTest") {

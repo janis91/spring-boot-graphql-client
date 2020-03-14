@@ -5,10 +5,12 @@ import com.apollographql.apollo.ApolloQueryCall
 import com.apollographql.apollo.api.*
 import com.apollographql.apollo.coroutines.toDeferred
 import com.apollographql.apollo.exception.ApolloException
+import com.apollographql.apollo.response.ScalarTypeAdapters
 import de.novatec.graphqlclient.graphql.exception.GraphQlClientException
 import io.mockk.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import okio.BufferedSource
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
@@ -137,6 +139,14 @@ internal class GraphQlClientTests {
             override fun marshaller(): ResponseFieldMarshaller {
                 return ResponseFieldMarshaller { mockk() }
             }
+        }
+
+        override fun parse(p0: BufferedSource, p1: ScalarTypeAdapters): Response<Data> {
+            TODO("Not yet implemented")
+        }
+
+        override fun parse(p0: BufferedSource): Response<Data> {
+            TODO("Not yet implemented")
         }
     }
 }

@@ -2,7 +2,7 @@ package de.novatec.graphqlclient.business.vehicles.domain
 
 import de.novatec.graphqlclient.configuration.ApplicationProperties
 import de.novatec.graphqlclient.graphql.repository.GraphQlClient
-import de.novatec.graphqlclient.queries.VehiclesQuery
+import de.novatec.graphqlclient.mesh.VehiclesQuery
 import mu.KotlinLogging
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -19,7 +19,7 @@ class VehiclesService(private val client: GraphQlClient, private val config: App
                 .requireNoNulls()
         LOG.debug { "Transform retrieved vehicles to domain objects." }
         return retrievedElements.stream().map { element ->
-            (element.inlineFragment as? VehiclesQuery.AsVehicle)!!.fields?.let {
+            element.asVehicle?.fields?.let {
                 Vehicle(
                     it.name.orEmpty(),
                     (it.price ?: BigDecimal.ZERO)

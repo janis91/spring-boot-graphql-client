@@ -4,7 +4,7 @@ import com.apollographql.apollo.api.ResponseField
 import com.apollographql.apollo.api.ResponseFieldMarshaller
 import de.novatec.graphqlclient.configuration.ApplicationProperties
 import de.novatec.graphqlclient.graphql.repository.GraphQlClient
-import de.novatec.graphqlclient.queries.VehiclesQuery
+import de.novatec.graphqlclient.mesh.VehiclesQuery
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
@@ -22,21 +22,21 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns two vehicles in the list, WHEN retrieveAndTransformVehicles is called, THEN returns the corresponding list of two vehicle domain objects`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 listOf(
                     VehiclesQuery.Element(
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("fields", "Foo", BigDecimal.valueOf(123.12))
+                            VehiclesQuery.Fields("fields", "Foo", BigDecimal.valueOf(123.12))
                         )
                     ),
                     VehiclesQuery.Element(
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("fields", "Bar", BigDecimal.ZERO)
+                            VehiclesQuery.Fields("fields", "Bar", BigDecimal.ZERO)
                         )
                     )
                 )
@@ -58,14 +58,14 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns one vehicle in the list, WHEN retrieveAndTransformVehicles is called, THEN returns the corresponding list with single vehicle domain object`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 listOf(
                     VehiclesQuery.Element(
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("fields", "Foo", BigDecimal.valueOf(123.12))
+                            VehiclesQuery.Fields("fields", "Foo", BigDecimal.valueOf(123.12))
                         )
                     )
                 )
@@ -86,7 +86,7 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns an empty list, WHEN retrieveAndTransformVehicles is called, THEN returns an empty list`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 emptyList()
             )
@@ -103,7 +103,7 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns null for elements, WHEN retrieveAndTransformVehicles is called, THEN throws ValidationException`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 null
             )
@@ -148,7 +148,7 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns null as vehicle in the list, WHEN retrieveAndTransformVehicles is called, THEN throws IllegalArgumentException`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 listOf(
                     null
@@ -165,31 +165,9 @@ internal class VehiclesServiceTests {
     }
 
     @Test
-    fun `GIVEN graphql client returns wrong type as inlineFragment in the list, WHEN retrieveAndTransformVehicles is called, THEN throws NullPointerException`() {
-        val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
-                "nodes",
-                listOf(
-                    VehiclesQuery.Element(
-                        "element",
-                        TestFragement()
-                    )
-                )
-            )
-        )
-        coEvery { client.query(any<VehiclesQuery>()) } returns data
-
-        assertThatNullPointerException()
-            .isThrownBy { runBlocking { service.retrieveAndTransformVehicles() } }
-
-        coVerifyAll { client.query(capture(querySlot)) }
-        assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
-    }
-
-    @Test
     fun `GIVEN graphql client returns null as inlineFragment in the list, WHEN retrieveAndTransformVehicles is called, THEN throws NullPointerException`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 listOf(
                     VehiclesQuery.Element(
@@ -201,9 +179,9 @@ internal class VehiclesServiceTests {
         )
         coEvery { client.query(any<VehiclesQuery>()) } returns data
 
-        assertThatNullPointerException()
-            .isThrownBy { runBlocking { service.retrieveAndTransformVehicles() } }
+        val result = runBlocking { service.retrieveAndTransformVehicles() }
 
+        assertThat(result).isEmpty()
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
     }
@@ -211,7 +189,7 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns null for fields, WHEN retrieveAndTransformVehicles is called, THEN returns an empty list`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 listOf(
                     VehiclesQuery.Element(
@@ -236,14 +214,14 @@ internal class VehiclesServiceTests {
     @Test
     fun `GIVEN graphql client returns vehicle with null values, WHEN retrieveAndTransformVehicles is called, THEN returns list with single vehicle and null safety`() {
         val data = VehiclesQuery.Data(
-            VehiclesQuery.Node(
+            VehiclesQuery.Nodes(
                 "nodes",
                 listOf(
                     VehiclesQuery.Element(
                         "element",
                         VehiclesQuery.AsVehicle(
                             "vehicle",
-                            VehiclesQuery.Field("field", null, null)
+                            VehiclesQuery.Fields("field", null, null)
                         )
                     )
                 )
@@ -257,11 +235,5 @@ internal class VehiclesServiceTests {
         assertThat(result).containsOnly(Vehicle("", BigDecimal.ZERO.setScale(2)))
         coVerifyAll { client.query(capture(querySlot)) }
         assertThat(querySlot.captured).isInstanceOf(VehiclesQuery::class.java)
-    }
-
-    internal class TestFragement : VehiclesQuery.ElementNode {
-        override fun marshaller(): ResponseFieldMarshaller = ResponseFieldMarshaller {
-            it.writeString(ResponseField.forString("__typename", "__typename", null, false, null), "noVehicle")
-        }
     }
 }

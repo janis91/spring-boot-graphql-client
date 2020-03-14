@@ -3,7 +3,7 @@ package de.novatec.graphqlclient.graphql.configuration
 import com.apollographql.apollo.ApolloClient
 import de.novatec.graphqlclient.graphql.configuration.adapter.BigDecimalAdapter
 import de.novatec.graphqlclient.configuration.ApplicationProperties
-import de.novatec.graphqlclient.queries.type.CustomType
+import de.novatec.graphqlclient.mesh.type.CustomType
 import okhttp3.OkHttpClient
 
 class ApolloClientConfiguration(
