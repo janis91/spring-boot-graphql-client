@@ -4,26 +4,25 @@ plugins {
     id("org.springframework.boot") version de.novatec.graphqlclient.build.BuildConfig.springBootVersion
     id("io.spring.dependency-management") version de.novatec.graphqlclient.build.BuildConfig.springDependencyManagement
     kotlin("jvm") version de.novatec.graphqlclient.build.BuildConfig.kotlinVersion
-    kotlin("plugin.spring") version "1.3.61"
+    kotlin("plugin.spring") version de.novatec.graphqlclient.build.BuildConfig.kotlinSpringVersion
     id("com.apollographql.apollo") version de.novatec.graphqlclient.build.BuildConfig.apolloVersion
 }
 
 group = "de.novatec"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 sourceSets {
     val integration by creating {
         compileClasspath += main.get().output + test.get().output
         runtimeClasspath += main.get().output + test.get().output
     }
-     val acceptance by creating {
+    val acceptance by creating {
         compileClasspath += main.get().output + test.get().output
         runtimeClasspath += main.get().output + test.get().output
     }
 }
 
-val developmentOnly by configurations.creating
 val integrationImplementation by configurations.getting {
     extendsFrom(configurations["testImplementation"])
 }
@@ -50,9 +49,6 @@ val acceptanceCompileOnly by configurations.getting {
 }
 
 configurations {
-    runtimeClasspath {
-        extendsFrom(developmentOnly)
-    }
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
     }
@@ -66,21 +62,23 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.apollographql.apollo:apollo-runtime:${de.novatec.graphqlclient.build.BuildConfig.apolloVersion}")
     implementation("com.apollographql.apollo:apollo-coroutines-support:${de.novatec.graphqlclient.build.BuildConfig.apolloVersion}")
-    implementation("io.github.microutils:kotlin-logging:1.7.8")
-    implementation("com.squareup.okio:okio:1.16.0") // TODO: check why okio is pulled with wrong version
+    implementation("io.github.microutils:kotlin-logging:1.7.9")
+    implementation("com.squareup.okio:okio:2.5.0")
 
     compileOnly("org.jetbrains:annotations:13.0")
 
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -107,7 +105,7 @@ tasks.withType<Test> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 

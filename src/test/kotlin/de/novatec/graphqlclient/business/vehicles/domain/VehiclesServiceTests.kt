@@ -1,7 +1,5 @@
 package de.novatec.graphqlclient.business.vehicles.domain
 
-import com.apollographql.apollo.api.ResponseField
-import com.apollographql.apollo.api.ResponseFieldMarshaller
 import de.novatec.graphqlclient.configuration.ApplicationProperties
 import de.novatec.graphqlclient.graphql.repository.GraphQlClient
 import de.novatec.graphqlclient.mesh.VehiclesQuery

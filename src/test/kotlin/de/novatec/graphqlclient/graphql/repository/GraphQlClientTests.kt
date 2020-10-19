@@ -3,14 +3,15 @@ package de.novatec.graphqlclient.graphql.repository
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.ApolloQueryCall
 import com.apollographql.apollo.api.*
-import com.apollographql.apollo.coroutines.toDeferred
+import com.apollographql.apollo.api.internal.ResponseFieldMapper
+import com.apollographql.apollo.api.internal.ResponseFieldMarshaller
+import com.apollographql.apollo.coroutines.await
 import com.apollographql.apollo.exception.ApolloException
-import com.apollographql.apollo.response.ScalarTypeAdapters
 import de.novatec.graphqlclient.graphql.exception.GraphQlClientException
 import io.mockk.*
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import okio.BufferedSource
+import okio.ByteString
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
@@ -40,11 +41,11 @@ internal class GraphQlClientTests {
         val testQuery = TestQuery()
         val expected: TestQuery.Data = mockk()
         val response: Response<TestQuery.Data> = mockk {
-            every { data() } returns expected
+            every { data } returns expected
             every { hasErrors() } returns false
         }
         val apolloCall: ApolloQueryCall<TestQuery.Data> = mockk {
-            coEvery { toDeferred() } returns CompletableDeferred(response)
+            coEvery { await() } returns response
         }
         every { apolloClient.query(any<Query<TestQuery.Data, TestQuery.Data, TestQuery.Variables>>()) } returns apolloCall
 
@@ -52,11 +53,11 @@ internal class GraphQlClientTests {
 
         assertThat(result).isEqualTo(expected)
         verifyAll {
-            response.data()
+            response.data
             response.hasErrors()
             apolloClient.query(testQuery)
         }
-        coVerifyAll { apolloCall.toDeferred() }
+        coVerifyAll { apolloCall.await() }
     }
 
     @Test
@@ -64,12 +65,12 @@ internal class GraphQlClientTests {
         val testQuery = TestQuery()
         val expected: TestQuery.Data = mockk()
         val response: Response<TestQuery.Data> = mockk {
-            every { data() } returns expected
+            every { data } returns expected
             every { hasErrors() } returns true
-            every { errors() } returns listOf(ApolloError("FooBar", null, null))
+            every { errors } returns listOf(ApolloError("FooBar", emptyList(), emptyMap()))
         }
         val apolloCall: ApolloQueryCall<TestQuery.Data> = mockk {
-            coEvery { toDeferred() } returns CompletableDeferred(response)
+            coEvery { await() } returns response
         }
         every { apolloClient.query(any<Query<TestQuery.Data, TestQuery.Data, TestQuery.Variables>>()) } returns apolloCall
 
@@ -80,20 +81,17 @@ internal class GraphQlClientTests {
 
         verifyAll {
             response.hasErrors()
-            response.errors()
+            response.errors
             apolloClient.query(testQuery)
         }
-        coVerifyAll { apolloCall.toDeferred() }
+        coVerifyAll { apolloCall.await() }
     }
 
     @Test
     fun `GIVEN a failing test query, WHEN query is called, THEN returns corresponding test data`() {
         val testQuery = TestQuery()
         val apolloCall: ApolloQueryCall<TestQuery.Data> = mockk {
-            coEvery { toDeferred() } returns CompletableDeferred<Response<TestQuery.Data>>()
-                .apply {
-                    completeExceptionally(ApolloException("FooBar"))
-                }
+            coEvery { await() } throws ApolloException("FooBar")
         }
         every { apolloClient.query(any<Query<TestQuery.Data, TestQuery.Data, TestQuery.Variables>>()) } returns apolloCall
 
@@ -105,7 +103,7 @@ internal class GraphQlClientTests {
         verifyAll {
             apolloClient.query(testQuery)
         }
-        coVerifyAll { apolloCall.toDeferred() }
+        coVerifyAll { apolloCall.await() }
     }
 
     class TestQuery : Query<TestQuery.Data, TestQuery.Data, TestQuery.Variables> {
@@ -130,7 +128,11 @@ internal class GraphQlClientTests {
         }
 
         override fun name(): OperationName {
-            return OperationName { "" }
+            return object : OperationName {
+                override fun name(): String {
+                    return ""
+                }
+            }
         }
 
         class Variables : Operation.Variables()
@@ -146,6 +148,30 @@ internal class GraphQlClientTests {
         }
 
         override fun parse(p0: BufferedSource): Response<Data> {
+            TODO("Not yet implemented")
+        }
+
+        override fun composeRequestBody(): ByteString {
+            TODO("Not yet implemented")
+        }
+
+        override fun composeRequestBody(scalarTypeAdapters: ScalarTypeAdapters): ByteString {
+            TODO("Not yet implemented")
+        }
+
+        override fun composeRequestBody(
+            autoPersistQueries: Boolean,
+            withQueryDocument: Boolean,
+            scalarTypeAdapters: ScalarTypeAdapters
+        ): ByteString {
+            TODO("Not yet implemented")
+        }
+
+        override fun parse(byteString: ByteString): Response<Data> {
+            TODO("Not yet implemented")
+        }
+
+        override fun parse(byteString: ByteString, scalarTypeAdapters: ScalarTypeAdapters): Response<Data> {
             TODO("Not yet implemented")
         }
     }

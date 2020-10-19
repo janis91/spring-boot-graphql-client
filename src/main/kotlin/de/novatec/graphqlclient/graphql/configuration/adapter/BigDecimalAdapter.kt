@@ -1,7 +1,7 @@
 package de.novatec.graphqlclient.graphql.configuration.adapter
 
-import com.apollographql.apollo.response.CustomTypeAdapter
-import com.apollographql.apollo.response.CustomTypeValue
+import com.apollographql.apollo.api.CustomTypeAdapter
+import com.apollographql.apollo.api.CustomTypeValue
 import java.math.BigDecimal
 import java.net.URI
 
